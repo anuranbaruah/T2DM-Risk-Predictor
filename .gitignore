@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+venv/
+.venv/
+env/
+.env/
+
+# Output directories
+output/
+output_*/
+OUTPUT*/
+5/
+
+# Generated run artifacts
+model_comparison_results.csv
+pidd_external_validation.csv
+shap_feature_importance.csv
+fig*.png
+
+# Claude Code
+.claude/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
