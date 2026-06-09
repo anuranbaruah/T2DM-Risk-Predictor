@@ -2,10 +2,30 @@
 
 from __future__ import annotations
 
+import contextlib
+import os
 from dataclasses import dataclass
 from typing import Any, Literal
 
 import numpy as np
+
+
+@contextlib.contextmanager
+def _silence_native_stderr():
+    """Redirect fd 2 at the OS level so C++ libraries can't print to stderr."""
+    try:
+        devnull = os.open(os.devnull, os.O_WRONLY)
+        saved = os.dup(2)
+        os.dup2(devnull, 2)
+        os.close(devnull)
+    except OSError:
+        saved = None
+    try:
+        yield
+    finally:
+        if saved is not None:
+            os.dup2(saved, 2)
+            os.close(saved)
 
 
 @dataclass
@@ -47,14 +67,14 @@ def _probe_xgboost_cuda() -> bool:
             random_state=0,
             n_jobs=1,
         )
-        clf.fit(X, y)
+        with _silence_native_stderr():
+            clf.fit(X, y)
         return True
-    except Exception:
+    except BaseException:
         return False
 
 
 def _probe_lightgbm_cuda() -> bool:
-    import contextlib, io
     try:
         from lightgbm import LGBMClassifier
 
@@ -70,7 +90,7 @@ def _probe_lightgbm_cuda() -> bool:
             n_jobs=1,
             random_state=0,
         )
-        with contextlib.redirect_stderr(io.StringIO()):
+        with _silence_native_stderr():
             clf.fit(X, y)
         return True
     except BaseException:
