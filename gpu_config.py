@@ -54,6 +54,7 @@ def _probe_xgboost_cuda() -> bool:
 
 
 def _probe_lightgbm_cuda() -> bool:
+    import contextlib, io
     try:
         from lightgbm import LGBMClassifier
 
@@ -69,9 +70,10 @@ def _probe_lightgbm_cuda() -> bool:
             n_jobs=1,
             random_state=0,
         )
-        clf.fit(X, y)
+        with contextlib.redirect_stderr(io.StringIO()):
+            clf.fit(X, y)
         return True
-    except Exception:
+    except BaseException:
         return False
 
 

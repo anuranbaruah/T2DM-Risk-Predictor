@@ -236,11 +236,23 @@ else:
             m4.metric("MCC", f"{r['MCC']:.3f}")
 
         st.dataframe(_sorted_df, use_container_width=True, hide_index=True)
+        st.download_button(
+            "Download results CSV",
+            data=_sorted_df.to_csv(index=False),
+            file_name="model_comparison_results.csv",
+            mime="text/csv",
+        )
 
         pidd_df = res.get("pidd_df")
         if pidd_df is not None:
             st.subheader("External validation (PIDD)")
             st.dataframe(pidd_df, use_container_width=True, hide_index=True)
+            st.download_button(
+                "Download PIDD validation CSV",
+                data=pidd_df.to_csv(index=False),
+                file_name="pidd_external_validation.csv",
+                mime="text/csv",
+            )
 
         st.subheader("XAI diagnostics")
         x1, x2, x3 = st.columns(3)
@@ -255,7 +267,6 @@ else:
             st.metric("DiCE valid CFs", f"{dv} / {dmax}")
 
     with tab2:
-        st.caption("PNGs are saved under your output folder; previews reload from disk.")
         paths = [
             ("SHAP summary (beeswarm)", "shap_summary"),
             ("SHAP — global importance", "shap_bar"),
@@ -270,6 +281,14 @@ else:
                 p = _figure_path(figs, key)
                 if p:
                     st.image(p, use_container_width=True)
+                    with open(p, "rb") as f:
+                        st.download_button(
+                            "Download PNG",
+                            data=f.read(),
+                            file_name=os.path.basename(p),
+                            mime="image/png",
+                            key=f"dl_{key}",
+                        )
                 else:
                     st.warning("Image not found — check the output path.")
 
@@ -533,5 +552,11 @@ else:
             res["mean_shap"].head(25).to_frame("mean_abs_shap"),
             use_container_width=True,
             height=400,
+        )
+        st.download_button(
+            "Download SHAP importances CSV",
+            data=res["mean_shap"].to_frame("mean_abs_shap").to_csv(),
+            file_name="shap_feature_importance.csv",
+            mime="text/csv",
         )
 
