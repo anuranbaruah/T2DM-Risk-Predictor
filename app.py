@@ -87,12 +87,12 @@ with st.sidebar:
     use_pidd = st.toggle("External validation (PIDD)", value=True)
 
     st.divider()
-    force_cpu = st.toggle(
-        "Force CPU for tree models",
+    use_gpu = st.toggle(
+        "Enable GPU (XGBoost & LightGBM)",
         value=False,
-        help="If off, XGBoost & LightGBM probe CUDA (NVIDIA + drivers). Random Forest always uses CPU.",
+        help="Probes for CUDA. Requires NVIDIA drivers and a GPU build of XGBoost/LightGBM. Random Forest always uses CPU.",
     )
-    use_gpu_param: bool | str = False if force_cpu else "auto"
+    use_gpu_param: bool | str = "auto" if use_gpu else False
 
     quick = st.toggle("Quick mode (5 Optuna trials / model)", value=False)
     n_trials = 5 if quick else st.slider("Optuna trials per model", 5, 50, 30, 5)
